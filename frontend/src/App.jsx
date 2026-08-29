@@ -1,4 +1,5 @@
 import { useState } from "react";
+import MapSelector from "./MapSelector";
 
 function App() {
   const [message, setMessage] = useState("Checking backend...");
@@ -16,16 +17,31 @@ function App() {
   };
 
   return (
-    <div style={{ padding: "40px", fontFamily: "Arial" }}>
+    <div
+      style={{
+        padding: "40px",
+        fontFamily: "Arial",
+      }}
+    >
       <h1>Blue Carbon MRV</h1>
 
-      <p>Backend Status:</p>
+      {/* Backend Test */}
+      <section>
+        <p>Backend Status:</p>
 
-      <h2>{message}</h2>
+        <h2>{message}</h2>
 
-      <button onClick={testBackend}>
-        Test Flask Connection
-      </button>
+        <button onClick={testBackend}>
+          Test Flask Connection
+        </button>
+      </section>
+
+      <hr style={{ margin: "40px 0" }} />
+
+      {/* AOI Map */}
+      <section>
+        <MapSelector />
+      </section>
     </div>
   );
 }
