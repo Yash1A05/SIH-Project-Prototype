@@ -88,65 +88,10 @@ function DrawControls({ onPolygonCreated }) {
 // THEME CARD COMPONENTS
 // =========================================================
 
-function MrvIcon({ type, size = 20 }) {
-  const common = {
-    width: size,
-    height: size,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.8,
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    "aria-hidden": true,
-  };
-
-  const paths = {
-    project: <><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h4l2 2h5A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M4 9h16"/></>,
-    map: <><path d="M9 18 3.8 20V6L9 4l6 2 5.2-2v14L15 20z"/><path d="M9 4v14M15 6v14"/></>,
-    satellite: <><path d="m7 17 10-10"/><path d="m5 19 2-2M17 7l2-2"/><path d="M8.5 5.5 18.5 15.5"/><path d="M6 10 3 7l4-4 3 3"/><path d="M18 14l3 3-4 4-3-3"/></>,
-    leaf: <><path d="M20 4C11 4 5 8 5 15c0 3 2 5 5 5 7 0 10-6 10-16Z"/><path d="M4 20c3-5 7-8 13-10"/></>,
-    water: <><path d="M12 3s6 6.2 6 11a6 6 0 0 1-12 0c0-4.8 6-11 6-11Z"/><path d="M9 16.5c.7 1 1.7 1.5 3 1.5"/></>,
-    moisture: <><path d="M12 3s5 5.4 5 9.5a5 5 0 0 1-10 0C7 8.4 12 3 12 3Z"/><path d="M9.5 15.5c.6.8 1.4 1.2 2.5 1.2"/></>,
-    chart: <><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 3-4 3 2 5-6"/></>,
-    carbon: <><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v5c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 11v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></>,
-    location: <><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></>,
-    ruler: <><path d="m4 17 13-13 3 3L7 20H4z"/><path d="m8 16 2 2M11 13l2 2M14 10l2 2M17 7l2 2"/></>,
-    globe: <><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.5 5.6 3.5 9s-1 6.4-3.5 9c-2.5-2.6-3.5-5.6-3.5-9S9.5 5.6 12 3Z"/></>,
-    shield: <><path d="M12 3 19 6v5c0 4.8-3 8.2-7 10-4-1.8-7-5.2-7-10V6z"/><path d="m9 12 2 2 4-4"/></>,
-    report: <><path d="M6 3h9l3 3v15H6z"/><path d="M14 3v4h4M9 12h6M9 16h6M9 8h2"/></>,
-    arrow: <><path d="M5 12h13"/><path d="m13 6 6 6-6 6"/></>,
-  };
-
-  return <svg {...common}>{paths[type] || paths.project}</svg>;
-}
-
-function IndexVisual({ type }) {
-  const palettes = {
-    ndvi: { className: "ndvi", label: "VEGETATION" },
-    ndwi: { className: "ndwi", label: "WATER" },
-    ndmi: { className: "ndmi", label: "MOISTURE" },
-  };
-  const p = palettes[type] || palettes.ndvi;
-
-  return (
-    <div className={`mrv-index-visual ${p.className}`} aria-hidden="true">
-      <div className="mrv-raster-grid" />
-      <svg viewBox="0 0 260 120" preserveAspectRatio="none">
-        <path className="raster-land raster-land-a" d="M0 75C30 55 52 63 73 48c22-16 39-20 55-6 18 16 28 10 43-2 19-16 35-14 52 1 13 12 24 12 37 5v74H0Z"/>
-        <path className="raster-land raster-land-b" d="M0 91c26-8 39-20 62-13 22 7 28-9 46-17 19-8 34 12 51 8 17-4 29-19 48-15 18 4 31 17 53 9v57H0Z"/>
-        <path className="raster-river" d="M166 0c-18 20-27 31-17 45 10 14 5 22-9 33-13 10-17 22-4 42"/>
-      </svg>
-      <span className="mrv-raster-label">{p.label}</span>
-      <span className="mrv-raster-scan" />
-    </div>
-  );
-}
-
 function StatCard({ title, value, subtitle, icon, accent = "green" }) {
   return (
     <div className={`mrv-stat-card mrv-accent-${accent}`}>
-      <div className="mrv-card-icon"><MrvIcon type={icon} size={19} /></div>
+      <div className="mrv-card-icon">{icon}</div>
       <div className="mrv-card-label">{title}</div>
       <div className="mrv-card-value">{value}</div>
       {subtitle && <div className="mrv-card-subtitle">{subtitle}</div>}
@@ -154,22 +99,26 @@ function StatCard({ title, value, subtitle, icon, accent = "green" }) {
   );
 }
 
-function IndexCard({ title, icon, visual, mean, minimum, maximum, accent = "green" }) {
+function IndexCard({ title, icon, mean, minimum, maximum, accent = "green" }) {
   return (
     <div className={`mrv-index-card mrv-accent-${accent}`}>
       <div className="mrv-index-head">
-        <span className="mrv-index-icon"><MrvIcon type={icon} size={18} /></span>
+        <span className="mrv-index-icon">{icon}</span>
         <span>{title}</span>
-        <span className={`mrv-index-badge ${accent}`}>
-          {accent === "green" ? "Healthy" : "Moderate"}
-        </span>
       </div>
-      <div className="mrv-index-body">
-        <IndexVisual type={visual} />
-        <div className="mrv-index-values">
-          <div><small>Mean</small><strong>{Number(mean).toFixed(4)}</strong></div>
-          <div><small>Min</small><strong>{Number(minimum).toFixed(4)}</strong></div>
-          <div><small>Max</small><strong>{Number(maximum).toFixed(4)}</strong></div>
+
+      <div className="mrv-index-values">
+        <div>
+          <small>Mean</small>
+          <strong>{Number(mean).toFixed(4)}</strong>
+        </div>
+        <div>
+          <small>Min</small>
+          <strong>{Number(minimum).toFixed(4)}</strong>
+        </div>
+        <div>
+          <small>Max</small>
+          <strong>{Number(maximum).toFixed(4)}</strong>
         </div>
       </div>
     </div>
@@ -946,7 +895,7 @@ try {
           --mrv-green: #19d66b;
           --mrv-green-dark: #0d9d4d;
           --mrv-blue: #3f8cff;
-          --mrv-purple: #2dd4bf;
+          --mrv-purple: #a85cf4;
           --mrv-red: #ff4f5e;
           --mrv-yellow: #f5bd3f;
           width: 100%;
@@ -1129,7 +1078,7 @@ try {
         }
 
         .mrv-map {
-          height: 500px;
+          height: 600px;
           width: 100%;
         }
 
@@ -1395,7 +1344,7 @@ try {
         }
 
         .mrv-accent-blue .mrv-card-icon { background: rgba(63,140,255,.12); border-color: rgba(63,140,255,.22); }
-        .mrv-accent-purple .mrv-card-icon { background: rgba(45,212,191,.12); border-color: rgba(45,212,191,.24); color: #5eead4; }
+        .mrv-accent-purple .mrv-card-icon { background: rgba(168,92,244,.12); border-color: rgba(168,92,244,.22); }
         .mrv-accent-red .mrv-card-icon { background: rgba(255,79,94,.12); border-color: rgba(255,79,94,.22); }
         .mrv-accent-yellow .mrv-card-icon { background: rgba(245,189,63,.12); border-color: rgba(245,189,63,.22); }
 
@@ -1432,30 +1381,8 @@ try {
           padding: 14px;
           border: 1px solid #303746;
           border-radius: 10px;
-          background:
-            linear-gradient(145deg, rgba(255,255,255,.018), transparent 48%),
-            #191e27;
+          background: #191e27;
           transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
-        }
-
-        .mrv-index-card .mrv-index-icon {
-          width: 31px;
-          height: 31px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-          background: rgba(25,214,107,.09);
-          border: 1px solid rgba(25,214,107,.16);
-        }
-        .mrv-accent-blue .mrv-index-icon {
-          background: rgba(63,140,255,.10);
-          border-color: rgba(63,140,255,.18);
-        }
-        .mrv-accent-purple .mrv-index-icon {
-          background: rgba(45,212,191,.10);
-          border-color: rgba(45,212,191,.18);
-          color: #5eead4;
         }
 
         .mrv-index-head {
@@ -1468,194 +1395,6 @@ try {
           padding-bottom: 11px;
           border-bottom: 1px solid #2b323e;
         }
-
-        /* =====================================================
-           ENVIRONMENTAL INDEX VISUALS
-           Restored so the SVG raster preview is visible.
-           Layout matches the reference: visual LEFT, values RIGHT.
-        ===================================================== */
-
-        .mrv-index-body {
-          display: grid;
-          grid-template-columns: minmax(0, 1.65fr) minmax(105px, .8fr);
-          gap: 13px;
-          align-items: center;
-          padding-top: 12px;
-        }
-
-        .mrv-index-visual {
-          position: relative;
-          height: 112px;
-          min-width: 0;
-          overflow: hidden;
-          border-radius: 8px;
-          border: 1px solid rgba(255,255,255,.09);
-          background: #17202a;
-          box-shadow: inset 0 0 30px rgba(0,0,0,.22);
-        }
-
-        .mrv-index-visual svg {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          display: block;
-        }
-
-        /* Distinct satellite-index color palettes */
-        .mrv-index-visual.ndvi {
-          background: linear-gradient(135deg, #0b241d 0%, #174d32 48%, #69783c 100%);
-        }
-
-        .mrv-index-visual.ndwi {
-          background: linear-gradient(135deg, #071e42 0%, #1260a4 48%, #d7d1a4 100%);
-        }
-
-        .mrv-index-visual.ndmi {
-          background: linear-gradient(135deg, #26133f 0%, #642d79 48%, #d4873d 100%);
-        }
-
-        .raster-land {
-          opacity: .84;
-        }
-
-        .ndvi .raster-land-a { fill: #aaa65d; }
-        .ndvi .raster-land-b { fill: #1b623a; }
-        .ndvi .raster-river { stroke: #dbe5aa; }
-
-        .ndwi .raster-land-a { fill: #e9db9e; }
-        .ndwi .raster-land-b { fill: #5b91c5; }
-        .ndwi .raster-river { stroke: #b9eaf2; }
-
-        .ndmi .raster-land-a { fill: #ef9b4b; }
-        .ndmi .raster-land-b { fill: #713181; }
-        .ndmi .raster-river { stroke: #f7c66d; }
-
-        .raster-river {
-          fill: none;
-          stroke-width: 8;
-          opacity: .48;
-        }
-
-        .mrv-raster-grid {
-          position: absolute;
-          inset: 0;
-          z-index: 2;
-          pointer-events: none;
-          background:
-            repeating-linear-gradient(
-              0deg,
-              rgba(255,255,255,.055) 0 1px,
-              transparent 1px 9px
-            ),
-            repeating-linear-gradient(
-              90deg,
-              rgba(255,255,255,.04) 0 1px,
-              transparent 1px 11px
-            );
-          mix-blend-mode: overlay;
-        }
-
-        .mrv-raster-label {
-          position: absolute;
-          z-index: 3;
-          left: 8px;
-          bottom: 7px;
-          padding: 3px 6px;
-          border-radius: 4px;
-          background: rgba(0,0,0,.38);
-          color: rgba(255,255,255,.86);
-          font-size: 8px;
-          line-height: 1;
-          letter-spacing: .08em;
-          font-weight: 800;
-        }
-
-        .mrv-raster-scan {
-          position: absolute;
-          z-index: 4;
-          left: -35%;
-          top: 0;
-          width: 25%;
-          height: 100%;
-          pointer-events: none;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255,255,255,.17),
-            transparent
-          );
-          animation: mrvScan 2.8s ease-in-out infinite;
-        }
-
-        @keyframes mrvScan {
-          0%, 35% { transform: translateX(0); }
-          70%, 100% { transform: translateX(520%); }
-        }
-
-        /* Reference layout uses values vertically beside the visual */
-        .mrv-index-values {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 8px;
-          padding-top: 0;
-        }
-
-        .mrv-index-values > div {
-          min-width: 0;
-          padding: 0;
-          border: 0 !important;
-          background: transparent !important;
-        }
-
-        .mrv-index-values small {
-          display: block;
-          color: #8f9aae;
-          font-size: 10px;
-          line-height: 1.2;
-          margin-bottom: 3px;
-        }
-
-        .mrv-index-values strong {
-          display: block;
-          color: #f4f7fb;
-          font-size: 13px;
-          line-height: 1.2;
-          font-weight: 800;
-          letter-spacing: 0;
-        }
-
-        /* Mean / Min / Max: visible but subtle, like the reference */
-        .mrv-index-values > div:nth-child(1) small,
-        .mrv-index-values > div:nth-child(1) strong {
-          color: #b8c0cd;
-        }
-
-        .mrv-index-values > div:nth-child(2) small,
-        .mrv-index-values > div:nth-child(2) strong {
-          color: #b8c0cd;
-        }
-
-        .mrv-index-values > div:nth-child(3) small,
-        .mrv-index-values > div:nth-child(3) strong {
-          color: #b8c0cd;
-        }
-
-        @media (max-width: 680px) {
-          .mrv-index-body {
-            grid-template-columns: 1fr;
-          }
-
-          .mrv-index-visual {
-            height: 145px;
-          }
-
-          .mrv-index-values {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 8px;
-          }
-        }
-
 
         .mrv-index-icon { font-size: 19px; }
 
@@ -1677,53 +1416,7 @@ try {
           display: block;
           color: #f4f7fb;
           font-size: 14px;
-          font-weight: 850;
-          letter-spacing: .01em;
-          text-shadow: 0 0 14px rgba(255,255,255,.04);
-        }
-
-        /* Environmental index values: stronger visual hierarchy */
-        .mrv-index-values > div:nth-child(1) {
-          padding: 6px 8px;
-          border-radius: 7px;
-          background: rgba(25,214,107,.065);
-          border: 1px solid rgba(25,214,107,.14);
-        }
-        .mrv-index-values > div:nth-child(1) small {
-          color: #62e99a;
-          font-weight: 750;
-        }
-        .mrv-index-values > div:nth-child(1) strong {
-          color: #8af0b5;
-          font-size: 14px;
-        }
-
-        .mrv-index-values > div:nth-child(2) {
-          padding: 6px 8px;
-          border-radius: 7px;
-          background: rgba(63,140,255,.055);
-          border: 1px solid rgba(63,140,255,.13);
-        }
-        .mrv-index-values > div:nth-child(2) small {
-          color: #69a7ff;
-          font-weight: 750;
-        }
-        .mrv-index-values > div:nth-child(2) strong {
-          color: #9bc5ff;
-        }
-
-        .mrv-index-values > div:nth-child(3) {
-          padding: 6px 8px;
-          border-radius: 7px;
-          background: rgba(245,189,63,.055);
-          border: 1px solid rgba(245,189,63,.14);
-        }
-        .mrv-index-values > div:nth-child(3) small {
-          color: #f4c95f;
-          font-weight: 750;
-        }
-        .mrv-index-values > div:nth-child(3) strong {
-          color: #ffe08a;
+          font-weight: 800;
         }
 
         .mrv-screening-header {
@@ -1943,7 +1636,27 @@ try {
           font-weight: 850;
         }
 
-        
+        .mrv-next {
+          margin-top: 12px;
+          padding: 15px;
+          text-align: center;
+          border: 1px solid rgba(25,214,107,.22);
+          border-radius: 9px;
+          background: rgba(25,214,107,.045);
+        }
+
+        .mrv-next-label {
+          color: #7f8ba0;
+          font-size: 11px;
+          margin-bottom: 5px;
+        }
+
+        .mrv-next-value {
+          color: #55e88e;
+          font-size: 17px;
+          font-weight: 800;
+        }
+
         .mrv-error {
           margin-top: 12px;
           padding: 13px;
@@ -2055,58 +1768,6 @@ try {
           to { opacity: 1; transform: translateX(0); }
         }
 
-        /* Final index-value layout override:
-           keep Mean / Min / Max vertically stacked beside the preview.
-           This must come AFTER the original .mrv-index-values rule. */
-        .mrv-index-body {
-          grid-template-columns: minmax(0, 1fr) 116px;
-          gap: 14px;
-        }
-
-        .mrv-index-values {
-          display: flex !important;
-          flex-direction: column !important;
-          grid-template-columns: none !important;
-          gap: 9px !important;
-          min-width: 0;
-          padding-top: 0 !important;
-        }
-
-        .mrv-index-values > div {
-          display: block !important;
-          min-width: 0;
-          width: 100%;
-          padding: 0 !important;
-          border: 0 !important;
-          background: transparent !important;
-          white-space: nowrap;
-        }
-
-        .mrv-index-values small {
-          display: block !important;
-          margin-bottom: 2px !important;
-          line-height: 1.1;
-        }
-
-        .mrv-index-values strong {
-          display: block !important;
-          font-size: 13px !important;
-          line-height: 1.15;
-          white-space: nowrap;
-        }
-
-        @media (max-width: 680px) {
-          .mrv-index-body {
-            grid-template-columns: 1fr;
-          }
-
-          .mrv-index-values {
-            display: grid !important;
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-            flex-direction: initial !important;
-          }
-        }
-
         @media (max-width: 980px) {
           .mrv-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
           .mrv-aoi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -2129,13 +1790,12 @@ try {
             border-bottom: 1px solid #2c333f;
           }
           .mrv-aoi-stat:last-child { border-bottom: 0; }
-          .mrv-map { height: 500px; }
+          .mrv-map { height: 600px; }
           .mrv-status-pill { margin-left: 0; }
           .mrv-section-head { flex-wrap: wrap; }
           .mrv-valid { align-items: flex-start; flex-direction: column; }
         }
-
-              `}</style>
+      `}</style>
 
       <div className="mrv-page">
         <div className="mrv-shell">
@@ -2177,7 +1837,7 @@ try {
           ================================================= */}
           <div className="mrv-topbar">
             <div>
-              <div className="mrv-kicker"><MrvIcon type="leaf" size={15} /> Blue Carbon MRV</div>
+              <div className="mrv-kicker">🌊 Blue Carbon MRV</div>
               <h1 className="mrv-title">Add New Project</h1>
               <p className="mrv-subtitle">
                 Map your project area, run analysis, and generate MRV report.
@@ -2273,7 +1933,7 @@ try {
             {aoi && (
               <div className="mrv-aoi-panel">
                 <div className="mrv-success">
-                  <span className="mrv-inline-icon success"><MrvIcon type="shield" size={15} /></span>
+                  <span>✓</span>
                   <span>Polygon successfully selected. Coordinates captured successfully.</span>
                 </div>
 
@@ -2320,7 +1980,7 @@ try {
                     onClick={sendAOIToBackend}
                     disabled={loading}
                   >
-                    {loading ? "Analyzing..." : "Analyze Selected Area →"}
+                    {loading ? "🔄 Analyzing..." : "🌿 Analyze Selected Area →"}
                   </button>
                 </div>
 
@@ -2433,20 +2093,20 @@ try {
                 </h3>
 
                 <p className="mrv-success-text">✓ Downloaded successfully</p>
+                <span className="mrv-file">File: {result.sentinel_image}</span>
               </div>
 
               {/* Environmental Indices */}
               {result.statistics && (
                 <div className="mrv-subsection">
                   <h3 className="mrv-subsection-title">
-                    <span className="mrv-heading-icon green"><MrvIcon type="leaf" size={18} /></span> Environmental Indices
+                    <span>🌿</span> Environmental Indices
                   </h3>
 
                   <div className="mrv-index-grid">
                     <IndexCard
-                      title="NDVI (Vegetation Index)"
-                      icon="leaf"
-                      visual="ndvi"
+                      title="NDVI"
+                      icon="🌿"
                       accent="green"
                       mean={result.statistics.ndvi.mean}
                       minimum={result.statistics.ndvi.minimum}
@@ -2454,9 +2114,8 @@ try {
                     />
 
                     <IndexCard
-                      title="NDWI (Water Index)"
-                      icon="water"
-                      visual="ndwi"
+                      title="NDWI"
+                      icon="💧"
                       accent="blue"
                       mean={result.statistics.ndwi.mean}
                       minimum={result.statistics.ndwi.minimum}
@@ -2464,9 +2123,8 @@ try {
                     />
 
                     <IndexCard
-                      title="NDMI (Moisture Index)"
-                      icon="moisture"
-                      visual="ndmi"
+                      title="NDMI"
+                      icon="💦"
                       accent="purple"
                       mean={result.statistics.ndmi.mean}
                       minimum={result.statistics.ndmi.minimum}
@@ -2490,7 +2148,7 @@ try {
 
                   <div className="mrv-card-grid">
                     <StatCard
-                      icon="leaf"
+                      icon="🌿"
                       title="Potential Mangrove"
                       accent="green"
                       value={`${formatNumber(
@@ -2501,7 +2159,7 @@ try {
                     />
 
                     <StatCard
-                      icon="location"
+                      icon="📍"
                       title="Mangrove Pixels"
                       accent="blue"
                       value={formatNumber(
@@ -2512,7 +2170,7 @@ try {
                     />
 
                     <StatCard
-                      icon="ruler"
+                      icon="📐"
                       title="Area"
                       accent="purple"
                       value={`${formatNumber(
@@ -2523,7 +2181,7 @@ try {
                     />
 
                     <StatCard
-                      icon="globe"
+                      icon="🌍"
                       title="Area"
                       accent="blue"
                       value={`${formatNumber(
@@ -2652,7 +2310,7 @@ try {
               {result.carbon_estimation && (
                 <div className="mrv-carbon">
                   <div className="mrv-carbon-head">
-                    <h3><MrvIcon type="carbon" size={20} /> Carbon Estimation</h3>
+                    <h3>🌱 Carbon Estimation</h3>
                     <p>
                       Area-based estimation of mangrove carbon stock and CO₂ equivalent.
                     </p>
@@ -2660,7 +2318,7 @@ try {
 
                   <div className="mrv-card-grid">
                     <StatCard
-                      icon="leaf"
+                      icon="🌿"
                       title="Mangrove Area"
                       accent="green"
                       value={`${formatNumber(
@@ -2671,7 +2329,7 @@ try {
                     />
 
                     <StatCard
-                      icon="chart"
+                      icon="📊"
                       title="Carbon Stock Factor"
                       accent="purple"
                       value={`${formatNumber(
@@ -2682,7 +2340,7 @@ try {
                     />
 
                     <StatCard
-                      icon="leaf"
+                      icon="🌳"
                       title="Estimated Carbon Stock"
                       accent="green"
                       value={`${formatNumber(
@@ -2693,7 +2351,7 @@ try {
                     />
 
                     <StatCard
-                      icon="globe"
+                      icon="🌍"
                       title="CO₂ Equivalent"
                       accent="blue"
                       value={`${formatNumber(
@@ -2706,7 +2364,7 @@ try {
 
                   {/* Methodology — preserved */}
                   <div className="mrv-methodology">
-                    <h4><MrvIcon type="report" size={16} /> Methodology</h4>
+                    <h4>📋 Methodology</h4>
 
                     <p>{result.carbon_estimation.methodology}</p>
 
@@ -2731,7 +2389,7 @@ try {
               {/* Valid Pixels — preserved */}
               {result.statistics && (
                 <div className="mrv-valid">
-                  <div className="mrv-valid-label"><MrvIcon type="location" size={15} /> Valid Pixels</div>
+                  <div className="mrv-valid-label">📍 Valid Pixels</div>
                   <div className="mrv-valid-value">
                     {formatNumber(result.statistics.valid_pixels, 0)}
                   </div>
@@ -2739,7 +2397,10 @@ try {
               )}
 
               <div className="mrv-next">
-                
+                <div className="mrv-next-label">➡️ Next Step</div>
+                <div className="mrv-next-value">
+                  🌱 {result.next_step || "Carbon Estimation"}
+                </div>
               </div>
             </section>
           )}
@@ -2766,7 +2427,7 @@ try {
                     className="mrv-report-btn"
                     onClick={generateMRVReport}
                   >
-                    Generate & Download MRV Report →
+                    📄 Generate & Download MRV Report →
                   </button>
                 </div>
 

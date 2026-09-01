@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { supabase } from "./supabaseClient"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BACKGROUND
@@ -11,7 +12,7 @@ const OCEAN_BG =
 // LOGO
 // ─────────────────────────────────────────────────────────────────────────────
 
-function Logo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
+function Logo({ size = "md" } ) {
   const iconSize = size === "sm" ? 32 : size === "lg" ? 52 : 40
 
   const textSize =
@@ -81,13 +82,7 @@ function Logo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
 // FEATURE ICONS
 // ─────────────────────────────────────────────────────────────────────────────
 
-type FeatureIcon =
-  | "transparent"
-  | "secure"
-  | "verifiable"
-  | "traceable"
-
-const featureIcons: Record<FeatureIcon, React.ReactElement> = {
+const featureIcons = {
   transparent: (
     <svg
       width="22"
@@ -195,19 +190,13 @@ const featureIcons: Record<FeatureIcon, React.ReactElement> = {
 // FEATURE ITEM
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface FeatureItemProps {
-  icon: FeatureIcon
-  title: string
-  description: string
-  last?: boolean
-}
 
 function FeatureItem({
   icon,
   title,
   description,
   last,
-}: FeatureItemProps) {
+}) {
   return (
     <div
       className="bcx-feature"
@@ -325,7 +314,7 @@ function LockIcon() {
   )
 }
 
-function EyeIcon({ crossed }: { crossed?: boolean }) {
+function EyeIcon({ crossed } ) {
   return (
     <svg
       width="16"
@@ -428,6 +417,20 @@ function UserPlusIcon() {
 // SOCIAL ICONS
 // ─────────────────────────────────────────────────────────────────────────────
 
+async function handleGoogleLogin() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: window.location.origin,
+    },
+  })
+
+  if (error) {
+    console.error("Google login error:", error.message)
+    alert(`Google login failed: ${error.message}`)
+  }
+}
+
 function GoogleIcon() {
   return (
     <svg
@@ -487,18 +490,6 @@ function MicrosoftIcon() {
 // COMMON INPUT
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface InputFieldProps {
-  id: string
-  label?: string
-  type: string
-  placeholder: string
-  value: string
-  onChange: (value: string) => void
-  error?: string
-  leftIcon: React.ReactElement
-  rightAction?: React.ReactElement
-  autoComplete?: string
-}
 
 function InputField({
   id,
@@ -511,7 +502,7 @@ function InputField({
   leftIcon,
   rightAction,
   autoComplete,
-}: InputFieldProps) {
+}) {
   const [focused, setFocused] = useState(false)
 
   return (
@@ -622,16 +613,13 @@ function InputField({
 // LOGIN FORM
 // ─────────────────────────────────────────────────────────────────────────────
 
-function validateEmail(email: string) {
+function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
-type FormState = "idle" | "loading" | "success"
-
 function LoginForm({
   onRegister,
-}: {
-  onRegister: () => void
+  onAuthenticated,
 }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -641,7 +629,7 @@ function LoginForm({
   const [passwordError, setPasswordError] = useState("")
 
   const [formState, setFormState] =
-    useState<FormState>("idle")
+    useState("idle")
 
   function validate() {
     let valid = true
@@ -671,18 +659,34 @@ function LoginForm({
     return valid
   }
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e) {
     e.preventDefault()
 
     if (!validate()) return
 
     setFormState("loading")
 
-    await new Promise((resolve) =>
-      setTimeout(resolve, 1400),
-    )
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    })
 
+    if (error) {
+      setFormState("idle")
+      setPasswordError(error.message)
+      return
+    }
+
+    setPasswordError("")
     setFormState("success")
+    setTimeout(() => {
+      if (onAuthenticated) onAuthenticated()
+    }, 500)
+
+    // Authentication succeeded; let the parent show the existing dashboard.
+    setTimeout(() => {
+      if (onAuthenticated) onAuthenticated()
+    }, 500)
   }
 
   if (formState === "success") {
@@ -909,6 +913,78 @@ function LoginForm({
         />
       </div>
 
+      {/* Social Login */}
+      <div
+        style={{
+          display: "flex",
+          gap: 9,
+        }}
+      >
+        <button
+          type="button"
+          aria-label="Continue with Google"
+          onClick={handleGoogleLogin}
+          style={{
+            flex: 1,
+            padding: "10px",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "background 0.2s, border-color 0.2s, transform 0.2s",
+            fontFamily: "inherit",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(0,217,255,0.08)"
+            e.currentTarget.style.borderColor = "rgba(0,217,255,0.3)"
+            e.currentTarget.style.transform = "translateY(-2px)"
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.04)"
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"
+            e.currentTarget.style.transform = "translateY(0)"
+          }}
+        >
+          <GoogleIcon />
+        </button>
+
+        <button
+          type="button"
+          aria-label="Continue with Microsoft"
+          onClick={() =>
+            alert("Continue with Microsoft — authentication coming soon.")
+          }
+          style={{
+            flex: 1,
+            padding: "10px",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "background 0.2s, border-color 0.2s, transform 0.2s",
+            fontFamily: "inherit",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(0,217,255,0.08)"
+            e.currentTarget.style.borderColor = "rgba(0,217,255,0.3)"
+            e.currentTarget.style.transform = "translateY(-2px)"
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.04)"
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"
+            e.currentTarget.style.transform = "translateY(0)"
+          }}
+        >
+          <MicrosoftIcon />
+        </button>
+      </div>
+
       <p
         style={{
           textAlign: "center",
@@ -961,17 +1037,6 @@ function LoginForm({
 // REGISTRATION INPUT
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface RegisterInputProps {
-  id: string
-  type: string
-  placeholder: string
-  value: string
-  onChange: (value: string) => void
-  error?: string
-  leftIcon: React.ReactElement
-  rightAction?: React.ReactElement
-  autoComplete?: string
-}
 
 function RegisterInput({
   id,
@@ -983,7 +1048,7 @@ function RegisterInput({
   leftIcon,
   rightAction,
   autoComplete,
-}: RegisterInputProps) {
+}) {
   const [focused, setFocused] = useState(false)
 
   return (
@@ -1087,9 +1152,7 @@ function RegisterInput({
 
 function RegisterPanel({
   onLogin,
-}: {
-  onLogin: () => void
-}) {
+} ) {
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -1105,13 +1168,13 @@ function RegisterPanel({
   const [agreed, setAgreed] = useState(false)
 
   const [errors, setErrors] =
-    useState<Record<string, string>>({})
+    useState({})
 
   const [submitted, setSubmitted] =
     useState(false)
 
   function validate() {
-    const newErrors: Record<string, string> = {}
+    const newErrors = {}
 
     if (!fullName.trim()) {
       newErrors.fullName =
@@ -1151,7 +1214,7 @@ function RegisterPanel({
   }
 
   async function handleRegister(
-    e: React.FormEvent,
+    e,
   ) {
     e.preventDefault()
 
@@ -1164,17 +1227,32 @@ function RegisterPanel({
 
     setErrors({})
 
-    await new Promise((resolve) =>
-      setTimeout(resolve, 800),
-    )
+    const { error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        data: {
+          full_name: fullName.trim(),
+        },
+      },
+    })
 
-    setSubmitted(true)
+    if (error) {
+      setErrors({
+        email: error.message,
+      })
+      return
+    }
+
+    // Registration succeeded. Move directly to the Login screen.
+    setSubmitted(false)
+    onLogin()
   }
 
   const eyeButton = (
-    show: boolean,
-    toggle: () => void,
-    label: string,
+    show,
+    toggle,
+    label,
   ) => (
     <button
       type="button"
@@ -1692,11 +1770,15 @@ function RegisterPanel({
                 key={label}
                 type="button"
                 aria-label={label}
-                onClick={() =>
-                  alert(
-                    `${label} — authentication coming soon.`,
-                  )
-                }
+                onClick={() => {
+                  if (label === "Continue with Google") {
+                    void handleGoogleLogin()
+                  } else {
+                    alert(
+                      `${label} — authentication coming soon.`,
+                    )
+                  }
+                }}
                 style={{
                   flex: 1,
                   padding: "10px",
@@ -1773,12 +1855,11 @@ function RegisterPanel({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MAIN APP
-// ─────────────────────────────────────────────────────────────────────────────
 
-export default function App() {
-  const [view, setView] =
-    useState<"login" | "register">("login")
+
+
+
+function AuthLayout({ view, setView, onAuthenticated }) {
 
   return (
     <>
@@ -2185,7 +2266,7 @@ export default function App() {
               display: "flex",
               flexDirection: "column",
               height: "100%",
-              padding: "42px 48px",
+              padding: "42px 40px",
               boxSizing: "border-box",
             }}
           >
@@ -2197,6 +2278,7 @@ export default function App() {
               className="bcx-hero-text bcx-hero-content"
               style={{
                 paddingBottom: 56,
+                textAlign: "left",
               }}
             >
               <div
@@ -2372,7 +2454,12 @@ export default function App() {
             transparent and immutable records.
           </p>
 
-          <div style={{ flex: 1 }}>
+          <div
+  style={{
+    flex: 1,
+    textAlign: "left",
+  }}
+>
             <FeatureItem
               icon="transparent"
               title="Transparent"
@@ -2406,7 +2493,7 @@ export default function App() {
               marginTop: 40,
             }}
           >
-            © 2024 BlueCarbonX · Blockchain MRV
+            © 2026 BlueCarbonX · Blockchain MRV
             Platform
           </p>
         </section>
@@ -2629,6 +2716,7 @@ export default function App() {
                 </p>
 
                 <LoginForm
+                  onAuthenticated={onAuthenticated}
                   onRegister={() =>
                     setView("register")
                   }
@@ -2643,6 +2731,24 @@ export default function App() {
             )}
           </div>
         </section>
+      </div>
+    </>
+  )
+}
+
+// Authentication screen only. The existing dashboard remains outside this component.
+export default function Auth({ onAuthenticated }) {
+  const [view, setView] = useState("login")
+
+  return (
+    <>
+      <style>{`
+        @keyframes bcx-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .bcx-spin { animation: bcx-spin 0.9s linear infinite; }
+      `}</style>
+      <div className="bcx-auth-wrapper">
+        {/* Reuse the complete contribution UI below through the original layout component. */}
+        <AuthLayout view={view} setView={setView} onAuthenticated={onAuthenticated} />
       </div>
     </>
   )

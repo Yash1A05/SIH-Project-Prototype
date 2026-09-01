@@ -3,8 +3,11 @@
 # =========================================================
 
 import os
+from dotenv import load_dotenv
 from datetime import datetime
 from xml.sax.saxutils import escape
+
+load_dotenv()
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
@@ -24,6 +27,7 @@ from reportlab.platypus import (
 
 from reportlab.graphics.barcode import qr
 from reportlab.graphics.shapes import Drawing
+
 
 
 # =========================================================
